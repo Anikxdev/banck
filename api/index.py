@@ -27,11 +27,8 @@ def handle_preflight():
 def check_ban_garena(uid: str, lang: str = "en") -> Optional[Dict]:
     api_url = "https://ff.garena.com/api/antihack/check_banned"
     
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Accept": "application/json",
-        "Referer": "https://ff.garena.com/"
-    }
+    # Browser-style headers (like Chrome)
+    headers = {'Accept': 'application/json, text/plain, */*', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9', 'Referer': 'https://ff.garena.com/en/support/', 'Sec-Ch-Ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"', 'Sec-Ch-Ua-Mobile': '?0', 'Sec-Ch-Ua-Platform': '"Windows"', 'Sec-Fetch-Dest': 'empty', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Site': 'same-origin', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36', 'X-Requested-With': 'B6FksShzIgjfrYImLpTsadjS86sddhFH' }
     
     params = {"lang": lang, "uid": uid}
     
