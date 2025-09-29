@@ -4,6 +4,7 @@ from typing import Dict, Optional
 
 app = Flask(__name__)
 
+# ---------------- CORS Handling ----------------
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
@@ -22,34 +23,31 @@ def handle_preflight():
         response = add_cors_headers(response)
         return response
 
+# ---------------- Garena API Call ----------------
 def check_ban_garena(uid: str, lang: str = "en") -> Optional[Dict]:
     api_url = "https://ff.garena.com/api/antihack/check_banned"
     
     headers = {
-        'Accept': 'application/json, text/plain, */*',
-        'Accept-Encoding': 'gzip, deflate, br, zstd',
-        'Accept-Language': 'en-US,en;q=0.9',
-        'Referer': 'https://ff.garena.com/en/support/',
-        'Sec-Ch-Ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
-        'X-Requested-With': 'B6FksShzIgjfrYImLpTsadjS86sddhFH'
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json",
+        "Referer": "https://ff.garena.com/"
     }
     
-    params = {'lang': lang, 'uid': uid}
+    params = {"lang": lang, "uid": uid}
     
     try:
         response = requests.get(api_url, params=params, headers=headers, timeout=15)
         if response.status_code != 200:
             return {"error": True, "message": f"API returned status {response.status_code}"}
-        return response.json()
+        
+        try:
+            return response.json()
+        except ValueError:
+            return {"error": True, "message": "Invalid JSON response from Garena"}
     except Exception as e:
         return {"error": True, "message": f"Request failed: {str(e)}"}
 
+# ---------------- Routes ----------------
 @app.route('/')
 def health_check():
     return jsonify({
@@ -164,6 +162,7 @@ def check_ban_post():
             "data": None
         }), 400
 
+# ---------------- Error Handlers ----------------
 @app.errorhandler(404)
 def not_found(error):
     return jsonify({
@@ -183,3 +182,7 @@ def internal_error(error):
         "message": "Internal server error",
         "data": None
     }), 500
+
+# For local dev only
+if __name__ == "__main__":
+    app.run(debug=True)
